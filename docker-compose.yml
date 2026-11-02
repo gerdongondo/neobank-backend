@@ -1,0 +1,47 @@
+services:
+  # Service MySQL (compatible M1)
+  mysql:
+    image: mysql:8.0.33
+    platform: linux/arm64
+    container_name: neobank_mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: neobank_db
+      MYSQL_USER: neobank_user
+      MYSQL_PASSWORD: neobank_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - neobank_network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  # Service Spring Boot
+  backend:
+    build: .
+    platform: linux/arm64
+    container_name: neobank_backend
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/neobank_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: rootpassword
+      JWT_SECRET: neobankSuperSecretKey2026WithAtLeast32CharactersLong
+      JWT_EXPIRATION: 86400000
+    ports:
+      - "8080:8080"
+    networks:
+      - neobank_network
+
+volumes:
+  mysql_data:
+
+networks:
+  neobank_network:
+    driver: bridge
