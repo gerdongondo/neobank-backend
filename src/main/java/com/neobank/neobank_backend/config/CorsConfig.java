@@ -16,13 +16,14 @@ public class CorsConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
 
-        // Autoriser les origines (React, Flutter web, etc.)
-        config.setAllowedOrigins(Arrays.asList(
-                "http://localhost:5173",   // React Vite
-                "http://localhost:3000",   // React CRA
-                "http://localhost:8080",   // Backend
+        // 🔥 UTILISER setAllowedOriginPatterns POUR ACCEPTER LES WILDCARDS AVEC CREDENTIALS
+        config.setAllowedOriginPatterns(Arrays.asList(
+                "http://localhost:5173",
+                "http://localhost:3000",
+                "http://localhost:8080",
                 "http://127.0.0.1:5173",
-                "http://127.0.0.1:3000"
+                "http://127.0.0.1:3000",
+                "https://*.vercel.app"   // <-- LIGNE CRUCIALE : autorise ton site en ligne
         ));
 
         // Autoriser toutes les méthodes HTTP
